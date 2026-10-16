@@ -1,10 +1,12 @@
 import { test as base } from '@playwright/test';
 import { DialogRecorder } from './dialogs';
 import { AuthPage } from '../pages/AuthPage';
+import { HomePage } from '../pages/HomePage';
 
 type Fixtures = {
   dialogs: DialogRecorder;
   auth: AuthPage;
+  home: HomePage;
 };
 
 export const test = base.extend<Fixtures>({
@@ -15,6 +17,9 @@ export const test = base.extend<Fixtures>({
   },
   auth: async ({ page }, use) => {
     await use(new AuthPage(page));
+  },
+  home: async ({ page }, use) => {
+    await use(new HomePage(page));
   },
 });
 

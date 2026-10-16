@@ -131,10 +131,15 @@ Verified lists:
 
 ## 8. Pagination
 
-- Controls: `#prev2` (Previous) and `#next2` (Next) inside `.pagination`.
+- Controls: `#prev2` (Previous) and `#next2` (Next) inside `.pagination`. Their `value` holds the
+  API cursor id (`next2.value = 9`, `prev2.value = 1` on load).
 - Clicking **Next** calls `POST /pagination {"id":"9"}` and replaces the grid with items having `id > 9`.
 - Page 2 returns **6 items** with **mixed categories** (monitors + notebooks): Apple monitor 24, MacBook air,
   Dell i7 8gb, 2017 Dell 15.6 Inch, ASUS Full HD, MacBook Pro.
+- **Next is hidden** once the last page is reached (`ScannedCount != 9`).
+- Clicking **Prev** calls `POST /pagination {"id":"<prev2.value>"}`, but `prev2.value` is set once on load
+  (to the first id, `1`) and **never updated**. So Prev returns the `id > 1` window — ids **2–10** (Nokia
+  lumia 1520 … Apple monitor 24), *not* the original id 1–9 list. Verified against the live site.
 - **Category is not preserved** by pagination — Next always returns the global "after id 9" list.
 - No URL change, no page-number indicators.
 
@@ -375,6 +380,7 @@ Prefer role/text/placeholder where possible; ids are stable and reliable here.
 11. **Modals are Bootstrap fade** — allow a short wait or wait for `.modal.show` before interacting.
 12. **Place Order button exists even with an empty cart** — guard the flow by adding items first.
 13. **Pagination resets category** — Next returns the global id>9 list (mixed categories); don't assume filtering.
+    **Prev is off-by-one**: it always queries `id > 1` (its cursor never updates), returning ids 2–10, not page 1.
 14. **Duplicate test users** — usernames are persisted server-side; generate unique usernames (e.g. `qa_<timestamp>`)
     per run, and use a fresh one for the "duplicate" negative test.
 15. **Signup/Login passwords are base64-encoded** in the request payload (only relevant if you assert on the API).
@@ -425,8 +431,8 @@ demoblaze-playwright/
 | 4 | Category | Phones | 7 products listed |
 | 5 | Category | Laptops | 6 products listed |
 | 6 | Category | Monitors | 2 products listed |
-| 7 | Pagination | Next | id>9 list (6 mixed items) |
-| 8 | Pagination | Prev | returns to id 1–9 list |
+| 7 | Pagination | Next | id>9 list (6 mixed items); Next button hidden |
+| 8 | Pagination | Prev | preceding window (ids 2–10), not the first page |
 | 9 | Product | Detail fields | title/price/description/Add to cart present |
 | 10 | Product | Add to cart | dialog `Product added` |
 | 11 | Cart | Reflect added items | N rows, total = sum |
