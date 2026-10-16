@@ -1,7 +1,7 @@
 # DemoBlaze Playwright Automation
 
 End-to-end automation for https://demoblaze.com, built from `demoblaze-knowledge-base.md`.
-This first slice covers the **Sign up / Log in / Log out** flows.
+Covers **Sign up / Log in / Log out** and **Category filtering** (Phones, Laptops, Monitors).
 
 ## Stack
 - TypeScript
@@ -20,6 +20,7 @@ npx playwright install chromium
 ```powershell
 npm test              # full suite
 npm run test:auth     # auth suite only
+npx playwright test tests/categories.spec.ts  # category suite
 npm run test:headed   # watch in a browser
 npm run test:ui       # Playwright UI mode
 npm run report        # open the last HTML report
@@ -28,10 +29,12 @@ npm run report        # open the last HTML report
 ## Layout
 ```
 pages/AuthPage.ts        # signup / login / logout + nav state POM
+pages/HomePage.ts         # category filtering + product grid POM
 fixtures/dialogs.ts      # native alert capture + auto-accept
-fixtures/test.ts         # extended test exposing `auth` and `dialogs`
+fixtures/test.ts         # extended test exposing `auth`, `dialogs` and `home`
 utils/data.ts            # unique user factory + shared password
 tests/auth.spec.ts       # authentication scenarios
+tests/categories.spec.ts # category filtering scenarios (Phones, Laptops, Monitors)
 ```
 
 ## Notes
