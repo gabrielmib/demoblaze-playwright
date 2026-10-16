@@ -1,7 +1,8 @@
 # DemoBlaze Playwright Automation
 
 End-to-end automation for https://demoblaze.com, built from `demoblaze-knowledge-base.md`.
-This first slice covers the **Sign up / Log in / Log out** flows.
+It covers the storefront (**page load**, **carousel** and **header navigation**) and the
+**Sign up / Log in / Log out** flows.
 
 ## Stack
 - TypeScript
@@ -28,10 +29,12 @@ npm run report        # open the last HTML report
 ## Layout
 ```
 pages/AuthPage.ts        # signup / login / logout + nav state POM
+pages/HomePage.ts        # product grid + carousel + header nav POM
 fixtures/dialogs.ts      # native alert capture + auto-accept
-fixtures/test.ts         # extended test exposing `auth` and `dialogs`
-utils/data.ts            # unique user factory + shared password
+fixtures/test.ts         # extended test exposing `auth`, `home` and `dialogs`
+utils/data.ts            # catalog size, unique user factory + shared password
 tests/auth.spec.ts       # authentication scenarios
+tests/home.spec.ts       # storefront load, carousel + header nav scenarios
 ```
 
 ## Notes
