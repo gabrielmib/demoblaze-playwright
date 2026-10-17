@@ -21,6 +21,7 @@ npx playwright install chromium
 ```powershell
 npm test              # full suite
 npm run test:auth     # auth suite only
+npm run test:home     # storefront suite only (page load, carousel, header nav)
 npm run test:headed   # watch in a browser
 npm run test:ui       # Playwright UI mode
 npm run report        # open the last HTML report

@@ -76,6 +76,35 @@ Appears identically on Home, Product detail, and Cart pages.
 Home page also renders a **3-slide carousel** in the header area: `Samsung1.jpg`, `nexus1.jpg`, `iphone1.jpg`
 (`.carousel-item img`, alts "First slide" / "Second slide" / "Third slide"). Hidden below ~800px width (CSS media query).
 
+**Header/nav selectors verified against the live site:**
+
+| Element | Selector | Notes |
+|---|---|---|
+| Brand | `.navbar-brand` (id `nava`) | Text is exactly `PRODUCT STORE`. **`PRODUCT STORE` appears twice in the DOM** (navbar + footer), so the locator must be scoped or strict mode fails |
+| Home | `.navbar-nav` → `getByRole('link', { name: 'Home (current)', exact: true })` | The link renders the literal text **"Home (current)"**, not "Home"; a `name: 'Home'` query returns nothing |
+| Contact / About us | `.navbar-nav` → `getByRole('link', { name: 'Contact' \| 'About us' })` | `href="#"`, open modals via `data-target` |
+| Cart | `.navbar-nav` → `getByRole('link', { name: 'Cart' })` | `href="cart.html"`; also id `cartur` |
+| Scope | `.navbar-nav` | Holds exactly the 8 header links. The carousel controls are **inside `.navbar` but outside `.navbar-nav`**, so `.navbar-nav` is the precise scope for nav links |
+
+**Carousel internals (verified):**
+
+| Element | Selector |
+|---|---|
+| Root | `#carouselExampleIndicators` (`data-ride="carousel"`) |
+| Slides | `#carouselExampleIndicators .carousel-item` (3) |
+| Images | `#carouselExampleIndicators .carousel-item img` (`src` relative: `Samsung1.jpg`, …) |
+| Indicators | `#carouselExampleIndicators .carousel-indicators li[data-slide-to="0|1|2"]` |
+| Active slide / indicator | `.carousel-item.active` / `.carousel-indicators li.active` |
+| Controls | `.carousel-control-prev` / `.carousel-control-next` |
+
+> **Carousel gotchas.** The root carries `data-ride="carousel"`, so it **auto-rotates every ~3s**. Bootstrap ignores
+> control clicks while `_isSliding`, so a click issued mid-transition is silently dropped — automation must wait for
+> the transition to end before clicking. The site runs **Bootstrap 4.0.0-alpha.6**, whose transition classes are
+> `.carousel-item-left` / `.carousel-item-right` — **not** the `.carousel-item-next` / `.carousel-item-prev` of
+> stable 4.x. Waiting on the stable names only never fires, which makes the wait a silent no-op; matching all four
+> gives a reliable settle signal (`toHaveCount(0)` when idle). The plugin has no public API: pausing requires
+> `$('#carouselExampleIndicators').carousel('pause')`. Only the active slide is laid out (the others collapse to 0×0).
+
 ---
 
 ## 5. Footer

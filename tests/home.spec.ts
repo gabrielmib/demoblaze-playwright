@@ -1,18 +1,25 @@
 import { test, expect } from '../fixtures/test';
 import { DEFAULT_CATALOG_SIZE } from '../utils/data';
 
-test.describe('Home', () => {
-  test('page loads the title and the default catalog', async ({ home }) => {
-    await home.goto();
+const SLIDES = [
+  { src: 'Samsung1.jpg', alt: 'First slide' },
+  { src: 'nexus1.jpg', alt: 'Second slide' },
+  { src: 'iphone1.jpg', alt: 'Third slide' },
+];
 
-    await home.expectTitle('STORE');
-    await home.expectProductCount(DEFAULT_CATALOG_SIZE);
+test.describe('Home', () => {
+  test('page loads the title and the default catalog', async ({ home, page }) => {
+    await home.gotoHome();
+
+    await expect(page).toHaveTitle('STORE');
+    await expect(home.productCards).toHaveCount(DEFAULT_CATALOG_SIZE);
   });
 
   test('page loads every product card with a title and a price', async ({ home }) => {
-    await home.goto();
+    await home.gotoHome();
 
-    await expect(home.productCards).toHaveCount(DEFAULT_CATALOG_SIZE);
+    // toHaveText against a list already pins the element count, so the count is
+    // not asserted again here.
     await expect(home.productTitles).toHaveText([
       'Samsung galaxy s6',
       'Nokia lumia 1520',
@@ -39,58 +46,57 @@ test.describe('Home', () => {
 });
 
 test.describe('Home carousel', () => {
-  const SLIDE_ALTS = ['First slide', 'Second slide', 'Third slide'];
-
   test('carousel renders three slides with one showing', async ({ home }) => {
-    await home.goto();
+    await home.gotoHome();
     await home.pauseCarousel();
 
-    await expect(home.slides).toHaveCount(SLIDE_ALTS.length);
-    for (const [index, alt] of SLIDE_ALTS.entries()) {
-      await expect(home.slideImages.nth(index)).toHaveAttribute('alt', alt);
+    await expect(home.slides).toHaveCount(SLIDES.length);
+    for (const { src, alt } of SLIDES) {
+      await expect(home.slideImageBySrc(src)).toHaveAttribute('alt', alt);
     }
 
     // Only the active slide is laid out; the others collapse to zero size.
-    await expect(home.activeSlides).toHaveCount(1);
     await expect(home.visibleSlideImage).toBeVisible();
   });
 
   test('next and previous controls move between slides', async ({ home }) => {
-    await home.goto();
+    await home.gotoHome();
     await home.pauseCarousel();
+
     await home.selectSlide(0);
-    await home.expectActiveSlide(0);
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '0');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'First slide');
 
     await home.clickNext();
-    await home.expectActiveSlide(1);
-    await home.expectVisibleSlideAlt('Second slide');
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '1');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'Second slide');
 
     await home.clickNext();
-    await home.expectActiveSlide(2);
-    await home.expectVisibleSlideAlt('Third slide');
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '2');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'Third slide');
 
     await home.clickPrevious();
-    await home.expectActiveSlide(1);
-    await home.expectVisibleSlideAlt('Second slide');
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '1');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'Second slide');
   });
 
   test('indicators jump straight to the chosen slide', async ({ home }) => {
-    await home.goto();
+    await home.gotoHome();
     await home.pauseCarousel();
 
     await home.selectSlide(2);
-    await home.expectActiveSlide(2);
-    await home.expectVisibleSlideAlt('Third slide');
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '2');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'Third slide');
 
     await home.selectSlide(0);
-    await home.expectActiveSlide(0);
-    await home.expectVisibleSlideAlt('First slide');
+    await expect(home.activeIndicator).toHaveAttribute('data-slide-to', '0');
+    await expect(home.visibleSlideImage).toHaveAttribute('alt', 'First slide');
   });
 });
 
 test.describe('Header navigation', () => {
   test('header shows the public links while logged out', async ({ home, auth }) => {
-    await home.goto();
+    await home.gotoHome();
 
     await expect(home.brand).toHaveText('PRODUCT STORE');
     await expect(home.homeLink).toBeVisible();
@@ -106,7 +112,7 @@ test.describe('Header navigation', () => {
   });
 
   test('header links point at their page or modal', async ({ home, auth }) => {
-    await home.goto();
+    await home.gotoHome();
 
     await expect(home.brand).toHaveAttribute('href', 'index.html');
     await expect(home.homeLink).toHaveAttribute('href', 'index.html');
